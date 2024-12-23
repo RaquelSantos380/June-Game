@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>June's Memory Game</title>
+    <link rel="icon" href="june.jpg" type="image/jpg">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            font-size: 24px;
+        }
+
+        header img {
+            width: 50px;
+            height: 50px;
+            vertical-align: middle;
+        }
+
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            width: 100px;
+            height: 150px;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            background-color: #e0e0e0;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card img {
+            display: none;
+            width: 90%;
+            height: 90%;
+            border-radius: 8px;
+        }
+
+        .card.flipped img {
+            display: block;
+        }
+
+        .dancing {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .dancing img {
+            width: 100px;
+            margin: 10px;
+            animation: dance 1s infinite alternate;
+        }
+
+        @keyframes dance {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-20px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="june.jpg" alt="June">
+        June's Memory Game
+    </header>
+
+    <div class="game-board" id="gameBoard"></div>
+
+    <div class="dancing" id="dancing">
+        <img src="jhope.jpg" alt="J-Hope">
+        <img src="jim.jpg" alt="Jim">
+        <img src="jimin.jpg" alt="Jimin">
+        <img src="junk.jpg" alt="Junk">
+        <img src="rm.jpg" alt="RM">
+        <img src="june.jpg" alt="June">
+    </div>
+
+    <audio id="music" src="bts_song.mp3"></audio>
+
+    <script>
+        const cards = [
+            { name: "jhope", img: "jhope.jpg" },
+            { name: "jim", img: "jim.jpg" },
+            { name: "jimin", img: "jimin.jpg" },
+            { name: "junk", img: "junk.jpg" },
+            { name: "rm", img: "rm.jpg" },
+            { name: "jhope", img: "jhope.jpg" },
+            { name: "jim", img: "jim.jpg" },
+            { name: "jimin", img: "jimin.jpg" },
+            { name: "junk", img: "junk.jpg" },
+            { name: "rm", img: "rm.jpg" }
+        ];
+
+        let flippedCards = [];
+        let matchedCards = 0;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function createGameBoard() {
+            const gameBoard = document.getElementById("gameBoard");
+            shuffle(cards);
+
+            cards.forEach((card, index) => {
+                const cardElement = document.createElement("div");
+                cardElement.classList.add("card");
+                cardElement.dataset.name = card.name;
+
+                const imgElement = document.createElement("img");
+                imgElement.src = card.img;
+                cardElement.appendChild(imgElement);
+
+                cardElement.addEventListener("click", () => flipCard(cardElement));
+                gameBoard.appendChild(cardElement);
+            });
+        }
+
+        function flipCard(card) {
+            if (flippedCards.length < 2 && !card.classList.contains("flipped")) {
+                card.classList.add("flipped");
+                flippedCards.push(card);
+
+                if (flippedCards.length === 2) {
+                    checkMatch();
+                }
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+
+            if (card1.dataset.name === card2.dataset.name) {
+                matchedCards += 2;
+                flippedCards = [];
+
+                if (matchedCards === cards.length) {
+                    startDancing();
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove("flipped");
+                    card2.classList.remove("flipped");
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        function startDancing() {
+            document.getElementById("dancing").style.display = "block";
+            const music = document.getElementById("music");
+            music.play();
+        }
+
+        createGameBoard();
+    </script>
+</body>
+</html>
