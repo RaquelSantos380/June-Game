@@ -3,73 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>June's Memory Game</title>
-    <link rel="icon" href="june.jpg" type="image/jpg">
+    <title>A Dança do BTS</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f0f8ff;
             margin: 0;
             padding: 0;
-        }
-
-        header {
-            background-color: #333;
+            background: #1c1c1c;
             color: white;
-            padding: 20px;
-            font-size: 24px;
+            text-align: center;
         }
-
-        header img {
-            width: 50px;
-            height: 50px;
-            vertical-align: middle;
+        .menu {
+            padding: 50px;
         }
-
-        .game-board {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            padding: 20px;
-            max-width: 600px;
-            margin: 0 auto;
+        .menu h1 {
+            font-size: 3em;
+            color: #FFD700;
         }
-
-        .card {
-            width: 100px;
-            height: 150px;
-            border: 2px solid #ccc;
-            border-radius: 10px;
-            background-color: #e0e0e0;
+        .menu button {
+            background: #FFD700;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            font-size: 1.2em;
             cursor: pointer;
+            border-radius: 5px;
+        }
+        .menu button:hover {
+            background: #FFC300;
+        }
+        .game-screen {
+            display: none;
+            padding: 20px;
+        }
+        .characters {
             display: flex;
             justify-content: center;
+            gap: 10px;
+            position: relative;
+        }
+        .character {
+            display: flex;
+            flex-direction: column;
             align-items: center;
-        }
-
-        .card img {
-            display: none;
-            width: 90%;
-            height: 90%;
-            border-radius: 8px;
-        }
-
-        .card.flipped img {
-            display: block;
-        }
-
-        .dancing {
-            display: none;
-            margin-top: 20px;
-        }
-
-        .dancing img {
-            width: 100px;
-            margin: 10px;
             animation: dance 1s infinite alternate;
         }
-
+        .character img {
+            width: 100px;
+            height: auto;
+            border-radius: 10px;
+        }
+        .instructions {
+            font-size: 1.2em;
+            padding: 10px;
+        }
+        .score {
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+        .keys {
+            font-size: 2em;
+            margin: 20px;
+            color: #FFD700;
+        }
         @keyframes dance {
             from {
                 transform: translateY(0);
@@ -78,106 +74,135 @@
                 transform: translateY(-20px);
             }
         }
+        .key-button {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 20px;
+            background: #FFD700;
+            color: black;
+            font-size: 1.5em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        .key-button:hover {
+            background: #FFC300;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <img src="june.jpg" alt="June">
-        June's Memory Game
-    </header>
-
-    <div class="game-board" id="gameBoard"></div>
-
-    <div class="dancing" id="dancing">
-        <img src="jhope.jpg" alt="J-Hope">
-        <img src="jim.jpg" alt="Jim">
-        <img src="jimin.jpg" alt="Jimin">
-        <img src="junk.jpg" alt="Junk">
-        <img src="rm.jpg" alt="RM">
-        <img src="june.jpg" alt="June">
+    <!-- Tela Inicial -->
+    <div class="menu" id="menu">
+        <h1>A Dança do BTS</h1>
+        <p>Imite os movimentos dos personagens e mostre que você é um dançarino de elite do BTS!</p>
+        <button onclick="startGame()">Iniciar Jogo</button>
+        <button onclick="showInstructions()">Instruções</button>
+        <button onclick="exitGame()">Sair</button>
     </div>
 
-    <audio id="music" src="bts_song.mp3"></audio>
+    <!-- Tela do Jogo -->
+    <div class="game-screen" id="game-screen">
+        <div class="characters">
+            <div class="character">
+                <img src="jhope.jpg" alt="J-Hope">
+                <p>J-Hope</p>
+            </div>
+            <div class="character">
+                <img src="jim.jpg" alt="Jim">
+                <p>Jim</p>
+            </div>
+            <div class="character">
+                <img src="jimin.jpg" alt="Jimin">
+                <p>Jimin</p>
+            </div>
+            <div class="character">
+                <img src="june.jpg" alt="June">
+                <p>June (Você)</p>
+            </div>
+            <div class="character">
+                <img src="junk.jpg" alt="Junk">
+                <p>Junk</p>
+            </div>
+            <div class="character">
+                <img src="rm.jpg" alt="RM">
+                <p>RM</p>
+            </div>
+            <div class="character">
+                <img src="suga.jpg" alt="Suga">
+                <p>Suga</p>
+            </div>
+        </div>
+        <div class="instructions" id="instructions">Clique nas teclas indicadas para imitar os movimentos!</div>
+        <div class="keys" id="keys">Teclas: </div>
+        <div id="key-buttons"></div>
+        <div class="score" id="score">Pontuação: 0</div>
+    </div>
 
+    <audio id="background-music" src="bts-song.mp3" loop></audio>
+
+    <!-- Scripts -->
     <script>
-        const cards = [
-            { name: "jhope", img: "jhope.jpg" },
-            { name: "jim", img: "jim.jpg" },
-            { name: "jimin", img: "jimin.jpg" },
-            { name: "junk", img: "junk.jpg" },
-            { name: "rm", img: "rm.jpg" },
-            { name: "jhope", img: "jhope.jpg" },
-            { name: "jim", img: "jim.jpg" },
-            { name: "jimin", img: "jimin.jpg" },
-            { name: "junk", img: "junk.jpg" },
-            { name: "rm", img: "rm.jpg" }
-        ];
+        let score = 0;
+        let keysToPress = [];
+        const menu = document.getElementById('menu');
+        const gameScreen = document.getElementById('game-screen');
+        const scoreDisplay = document.getElementById('score');
+        const keysDisplay = document.getElementById('keys');
+        const keyButtonsContainer = document.getElementById('key-buttons');
+        const music = document.getElementById('background-music');
 
-        let flippedCards = [];
-        let matchedCards = 0;
-
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        function createGameBoard() {
-            const gameBoard = document.getElementById("gameBoard");
-            shuffle(cards);
-
-            cards.forEach((card, index) => {
-                const cardElement = document.createElement("div");
-                cardElement.classList.add("card");
-                cardElement.dataset.name = card.name;
-
-                const imgElement = document.createElement("img");
-                imgElement.src = card.img;
-                cardElement.appendChild(imgElement);
-
-                cardElement.addEventListener("click", () => flipCard(cardElement));
-                gameBoard.appendChild(cardElement);
-            });
-        }
-
-        function flipCard(card) {
-            if (flippedCards.length < 2 && !card.classList.contains("flipped")) {
-                card.classList.add("flipped");
-                flippedCards.push(card);
-
-                if (flippedCards.length === 2) {
-                    checkMatch();
-                }
-            }
-        }
-
-        function checkMatch() {
-            const [card1, card2] = flippedCards;
-
-            if (card1.dataset.name === card2.dataset.name) {
-                matchedCards += 2;
-                flippedCards = [];
-
-                if (matchedCards === cards.length) {
-                    startDancing();
-                }
-            } else {
-                setTimeout(() => {
-                    card1.classList.remove("flipped");
-                    card2.classList.remove("flipped");
-                    flippedCards = [];
-                }, 1000);
-            }
-        }
-
-        function startDancing() {
-            document.getElementById("dancing").style.display = "block";
-            const music = document.getElementById("music");
+        function startGame() {
+            menu.style.display = 'none';
+            gameScreen.style.display = 'block';
+            score = 0;
+            updateScore();
+            generateKeys();
             music.play();
         }
 
-        createGameBoard();
+        function updateScore() {
+            scoreDisplay.textContent = `Pontuação: ${score}`;
+        }
+
+        function generateKeys() {
+            const possibleKeys = ['A', 'S', 'D', 'W'];
+            keysToPress = Array.from({ length: 3 }, () => possibleKeys[Math.floor(Math.random() * possibleKeys.length)]);
+            keysDisplay.textContent = `Teclas: ${keysToPress.join(', ')}`;
+            renderKeyButtons();
+        }
+
+        function renderKeyButtons() {
+            keyButtonsContainer.innerHTML = '';
+            keysToPress.forEach(key => {
+                const button = document.createElement('button');
+                button.textContent = key;
+                button.className = 'key-button';
+                button.onclick = () => handleKeyPress(key);
+                keyButtonsContainer.appendChild(button);
+            });
+        }
+
+        function handleKeyPress(key) {
+            if (keysToPress.includes(key)) {
+                score += 10;
+                keysToPress = keysToPress.filter(k => k !== key);
+                updateScore();
+                renderKeyButtons();
+
+                if (keysToPress.length === 0) {
+                    generateKeys();
+                }
+            }
+        }
+
+        function showInstructions() {
+            alert('Clique nas teclas mostradas na tela para copiar os movimentos dos personagens. Boa sorte!');
+        }
+
+        function exitGame() {
+            alert('Obrigado por jogar A Dança do BTS!');
+            music.pause();
+        }
     </script>
 </body>
 </html>
