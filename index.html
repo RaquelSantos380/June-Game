@@ -46,12 +46,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            animation: dance 1s infinite alternate;
         }
         .character img {
             width: 100px;
             height: auto;
             border-radius: 10px;
+            position: relative;
+            transition: transform 0.2s ease-in-out;
         }
         .instructions {
             font-size: 1.2em;
@@ -65,14 +66,6 @@
             font-size: 2em;
             margin: 20px;
             color: #FFD700;
-        }
-        @keyframes dance {
-            from {
-                transform: translateY(0);
-            }
-            to {
-                transform: translateY(-20px);
-            }
         }
         .key-button {
             display: inline-block;
@@ -102,39 +95,38 @@
 
     <!-- Game Screen -->
     <div class="game-screen" id="game-screen">
-        <div class="characters">
+        <div class="characters" id="characters">
             <div class="character">
-                <img src="jhope.jpg" alt="J-Hope">
+                <img src="jhope.jpg" alt="J-Hope" class="character-img">
                 <p>J-Hope</p>
             </div>
             <div class="character">
-                <img src="jim.jpg" alt="Jim">
+                <img src="jim.jpg" alt="Jim" class="character-img">
                 <p>Jim</p>
             </div>
             <div class="character">
-                <img src="jimin.jpg" alt="Jimin">
+                <img src="jimin.jpg" alt="Jimin" class="character-img">
                 <p>Jimin</p>
             </div>
             <div class="character">
-                <img src="june.jpg" alt="June">
-                <p>June (You)</p>
+                <img src="june.jpg" alt="June" class="character-img">
+                <p>June</p>
             </div>
             <div class="character">
-                <img src="junk.jpg" alt="Junk">
+                <img src="junk.jpg" alt="Junk" class="character-img">
                 <p>Junk</p>
             </div>
             <div class="character">
-                <img src="rm.jpg" alt="RM">
+                <img src="rm.jpg" alt="RM" class="character-img">
                 <p>RM</p>
             </div>
             <div class="character">
-                <img src="suga.jpg" alt="Suga">
+                <img src="suga.jpg" alt="Suga" class="character-img">
                 <p>Suga</p>
             </div>
         </div>
-        <div class="instructions" id="instructions">Click the keys displayed to match the moves!</div>
-        <div class="keys" id="keys">Keys: </div>
-        <div id="key-buttons"></div>
+        <div class="instructions" id="instructions">Click the key displayed on the screen!</div>
+        <div class="keys" id="keys"></div>
         <div class="score" id="score">Score: 0</div>
     </div>
 
@@ -143,20 +135,43 @@
     <!-- Scripts -->
     <script>
         let score = 0;
-        let keysToPress = [];
+        let clickCount = 0;
+        const phrases = [
+            "Wow, this is amazing!",
+            "OMG, this is so good!",
+            "This is pure bliss!",
+            "I can't get enough of this!",
+            "This is insanely good!",
+            "I'm loving every second of this!",
+            "This is heaven on earth!",
+            "This feels incredible!",
+            "I’m obsessed with this!",
+            "This is perfection!",
+            "OMG, I'm melting!",
+            "This is unreal!",
+            "I’m in love with this!",
+            "This hits differently!",
+            "I’m living for this moment!",
+            "OMG, my heart can’t take this!",
+            "I could do this forever!",
+            "This is giving me life!",
+            "Wow, this is out of this world!",
+            "This is so satisfying, it hurts!"
+        ];
         const menu = document.getElementById('menu');
         const gameScreen = document.getElementById('game-screen');
         const scoreDisplay = document.getElementById('score');
         const keysDisplay = document.getElementById('keys');
-        const keyButtonsContainer = document.getElementById('key-buttons');
+        const characters = document.querySelectorAll('.character-img');
         const music = document.getElementById('background-music');
 
         function startGame() {
             menu.style.display = 'none';
             gameScreen.style.display = 'block';
             score = 0;
+            clickCount = 0;
             updateScore();
-            generateKeys();
+            generateKey();
             music.play();
         }
 
@@ -164,39 +179,31 @@
             scoreDisplay.textContent = `Score: ${score}`;
         }
 
-        function generateKeys() {
+        function generateKey() {
             const possibleKeys = ['A', 'S', 'D', 'W'];
-            keysToPress = Array.from({ length: 3 }, () => possibleKeys[Math.floor(Math.random() * possibleKeys.length)]);
-            keysDisplay.textContent = `Keys: ${keysToPress.join(', ')}`;
-            renderKeyButtons();
+            const randomKey = possibleKeys[Math.floor(Math.random() * possibleKeys.length)];
+            keysDisplay.textContent = randomKey;
+            keysDisplay.onclick = () => handleKeyClick(randomKey);
         }
 
-        function renderKeyButtons() {
-            keyButtonsContainer.innerHTML = '';
-            keysToPress.forEach(key => {
-                const button = document.createElement('button');
-                button.textContent = key;
-                button.className = 'key-button';
-                button.onclick = () => handleKeyPress(key);
-                keyButtonsContainer.appendChild(button);
-            });
-        }
+        function handleKeyClick(key) {
+            score += 10;
+            clickCount++;
+            updateScore();
 
-        function handleKeyPress(key) {
-            if (keysToPress.includes(key)) {
-                score += 10;
-                keysToPress = keysToPress.filter(k => k !== key);
-                updateScore();
-                renderKeyButtons();
+            // Randomly select a character to "move"
+            const randomCharacter = characters[Math.floor(Math.random() * characters.length)];
+            randomCharacter.style.transform = `translate(${Math.random() * 300 - 150}px, ${Math.random() * 300 - 150}px)`;
 
-                if (keysToPress.length === 0) {
-                    generateKeys();
-                }
+            if (clickCount % 5 === 0) {
+                alert(phrases[Math.floor(Math.random() * phrases.length)]);
             }
+
+            generateKey();
         }
 
         function showInstructions() {
-            alert('Click on the keys displayed on the screen to match the characters’ moves. Good luck!');
+            alert('Click on the key displayed on the screen to make the character dance. Good luck!');
         }
 
         function exitGame() {
