@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Dança do BTS</title>
+    <title>BTS Dance Game</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -91,16 +91,16 @@
     </style>
 </head>
 <body>
-    <!-- Tela Inicial -->
+    <!-- Main Menu -->
     <div class="menu" id="menu">
-        <h1>A Dança do BTS</h1>
-        <p>Imite os movimentos dos personagens e mostre que você é um dançarino de elite do BTS!</p>
-        <button onclick="startGame()">Iniciar Jogo</button>
-        <button onclick="showInstructions()">Instruções</button>
-        <button onclick="exitGame()">Sair</button>
+        <h1>BTS Dance Game</h1>
+        <p>Follow the characters' moves and show you're a top BTS dancer!</p>
+        <button onclick="startGame()">Start Game</button>
+        <button onclick="showInstructions()">Instructions</button>
+        <button onclick="exitGame()">Exit</button>
     </div>
 
-    <!-- Tela do Jogo -->
+    <!-- Game Screen -->
     <div class="game-screen" id="game-screen">
         <div class="characters">
             <div class="character">
@@ -117,7 +117,7 @@
             </div>
             <div class="character">
                 <img src="june.jpg" alt="June">
-                <p>June (Você)</p>
+                <p>June (You)</p>
             </div>
             <div class="character">
                 <img src="junk.jpg" alt="Junk">
@@ -132,10 +132,10 @@
                 <p>Suga</p>
             </div>
         </div>
-        <div class="instructions" id="instructions">Clique nas teclas indicadas para imitar os movimentos!</div>
-        <div class="keys" id="keys">Teclas: </div>
+        <div class="instructions" id="instructions">Click the keys displayed to match the moves!</div>
+        <div class="keys" id="keys">Keys: </div>
         <div id="key-buttons"></div>
-        <div class="score" id="score">Pontuação: 0</div>
+        <div class="score" id="score">Score: 0</div>
     </div>
 
     <audio id="background-music" src="bts-song.mp3" loop></audio>
@@ -161,13 +161,13 @@
         }
 
         function updateScore() {
-            scoreDisplay.textContent = `Pontuação: ${score}`;
+            scoreDisplay.textContent = `Score: ${score}`;
         }
 
         function generateKeys() {
             const possibleKeys = ['A', 'S', 'D', 'W'];
             keysToPress = Array.from({ length: 3 }, () => possibleKeys[Math.floor(Math.random() * possibleKeys.length)]);
-            keysDisplay.textContent = `Teclas: ${keysToPress.join(', ')}`;
+            keysDisplay.textContent = `Keys: ${keysToPress.join(', ')}`;
             renderKeyButtons();
         }
 
@@ -196,11 +196,11 @@
         }
 
         function showInstructions() {
-            alert('Clique nas teclas mostradas na tela para copiar os movimentos dos personagens. Boa sorte!');
+            alert('Click on the keys displayed on the screen to match the characters’ moves. Good luck!');
         }
 
         function exitGame() {
-            alert('Obrigado por jogar A Dança do BTS!');
+            alert('Thank you for playing BTS Dance Game!');
             music.pause();
         }
     </script>
