@@ -1,215 +1,195 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BTS Dance Game</title>
+    <title>Mini Paint</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
-            padding: 0;
-            background: #1c1c1c;
-            color: white;
-            text-align: center;
-        }
-        .menu {
-            padding: 50px;
-        }
-        .menu h1 {
-            font-size: 3em;
-            color: #FFD700;
-        }
-        .menu button {
-            background: #FFD700;
-            border: none;
-            padding: 15px 30px;
-            margin: 10px;
-            font-size: 1.2em;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        .menu button:hover {
-            background: #FFC300;
-        }
-        .game-screen {
-            display: none;
-            padding: 20px;
-        }
-        .characters {
+            overflow: hidden;
             display: flex;
             justify-content: center;
-            gap: 10px;
-            position: relative;
+            align-items: center;
+            height: 100vh;
         }
-        .character {
+        #canvas {
+            background-image: url('quadro.jpg');
+            background-size: cover;
+            position: relative;
+            border: 1px solid black;
+        }
+        .palette {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            position: absolute;
+            left: 10px;
+            top: 10px;
         }
-        .character img {
-            width: 100px;
-            height: auto;
-            border-radius: 10px;
-            position: relative;
-            transition: transform 0.2s ease-in-out;
-        }
-        .instructions {
-            font-size: 1.2em;
-            padding: 10px;
-        }
-        .score {
-            font-size: 1.5em;
-            margin-top: 20px;
-        }
-        .keys {
-            font-size: 2em;
-            margin: 20px;
-            color: #FFD700;
-        }
-        .key-button {
-            display: inline-block;
-            margin: 5px;
-            padding: 10px 20px;
-            background: #FFD700;
-            color: black;
-            font-size: 1.5em;
+        .color {
+            width: 30px;
+            height: 30px;
             cursor: pointer;
-            border: none;
-            border-radius: 5px;
         }
-        .key-button:hover {
-            background: #FFC300;
+        #tools {
+            display: flex;
+            flex-direction: column;
+            margin-top: 10px;
+        }
+        #eraser, #bucket {
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+        #nhera, #nherita {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            pointer-events: none;
         }
     </style>
 </head>
 <body>
-    <!-- Main Menu -->
-    <div class="menu" id="menu">
-        <h1>BTS Dance Game</h1>
-        <p>Follow the characters' moves and show you're a top BTS dancer!</p>
-        <button onclick="startGame()">Start Game</button>
-        <button onclick="showInstructions()">Instructions</button>
-        <button onclick="exitGame()">Exit</button>
+
+<div class="palette">
+    <img src="azul.jpg" class="color" onclick="changeColor('blue')">
+    <img src="preto.jpg" class="color" onclick="changeColor('black')">
+    <img src="branco.jpg" class="color" onclick="changeColor('white')">
+    <img src="verde.jpg" class="color" onclick="changeColor('green')">
+    <img src="roxo.jpg" class="color" onclick="changeColor('purple')">
+    <img src="amarelo.jpg" class="color" onclick="changeColor('yellow')">
+    <img src="rosa.jpg" class="color" onclick="changeColor('pink')">
+    <div id="tools">
+        <img src="pin.png" id="brush" onclick="setTool('brush')" style="display:none;">
+        <img src="eraser.png" id="eraser" onclick="setTool('eraser')">
+        <img src="balde_de_tinta.png" id="bucket" onclick="setTool('bucket')">
     </div>
+</div>
 
-    <!-- Game Screen -->
-    <div class="game-screen" id="game-screen">
-        <div class="characters" id="characters">
-            <div class="character">
-                <img src="jhope.jpg" alt="J-Hope" class="character-img">
-                <p>J-Hope</p>
-            </div>
-            <div class="character">
-                <img src="jim.jpg" alt="Jim" class="character-img">
-                <p>Jim</p>
-            </div>
-            <div class="character">
-                <img src="jimin.jpg" alt="Jimin" class="character-img">
-                <p>Jimin</p>
-            </div>
-            <div class="character">
-                <img src="june.jpg" alt="June" class="character-img">
-                <p>June</p>
-            </div>
-            <div class="character">
-                <img src="junk.jpg" alt="Junk" class="character-img">
-                <p>Junk</p>
-            </div>
-            <div class="character">
-                <img src="rm.jpg" alt="RM" class="character-img">
-                <p>RM</p>
-            </div>
-            <div class="character">
-                <img src="suga.jpg" alt="Suga" class="character-img">
-                <p>Suga</p>
-            </div>
-        </div>
-        <div class="instructions" id="instructions">Click the key displayed on the screen!</div>
-        <div class="keys" id="keys"></div>
-        <div class="score" id="score">Score: 0</div>
-    </div>
+<canvas id="canvas" width="800" height="500"></canvas>
+<img src="nhera.gif" id="nhera">
+<img src="nherita.gif" id="nherita">
 
-    <audio id="background-music" src="bts-song.mp3" loop autoplay></audio>
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let painting = false;
+    let color = 'black';
+    let tool = 'brush';
 
-    <!-- Scripts -->
-    <script>
-        let score = 0;
-        let clickCount = 10;
-        const phrases = [
-            "Wow, this is amazing!",
-            "OMG, this is so good!",
-            "This is pure bliss!",
-            "I can't get enough of this!",
-            "This is insanely good!",
-            "I'm loving every second of this!",
-            "This is heaven on earth!",
-            "This feels incredible!",
-            "I’m obsessed with this!",
-            "This is perfection!",
-            "OMG, I'm melting!",
-            "This is unreal!",
-            "I’m in love with this!",
-            "This hits differently!",
-            "I’m living for this moment!",
-            "OMG, my heart can’t take this!",
-            "I could do this forever!",
-            "This is giving me life!",
-            "Wow, this is out of this world!",
-            "This is so satisfying, it hurts!"
-        ];
-        const menu = document.getElementById('menu');
-        const gameScreen = document.getElementById('game-screen');
-        const scoreDisplay = document.getElementById('score');
-        const keysDisplay = document.getElementById('keys');
-        const characters = document.querySelectorAll('.character-img');
-        const music = document.getElementById('background-music');
+    canvas.addEventListener('mousedown', startPosition);
+    canvas.addEventListener('mouseup', endPosition);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchstart', startPosition);
+    canvas.addEventListener('touchend', endPosition);
+    canvas.addEventListener('touchmove', draw);
+    document.addEventListener('mousemove', followMouse);
 
-        function startGame() {
-            menu.style.display = 'none';
-            gameScreen.style.display = 'block';
-            score = 0;
-            clickCount = 0;
-            updateScore();
-            generateKey();
-            music.play();
+    let nheraSpeedX = 1;
+    let nheraSpeedY = 1;
+    let nheritaSpeedX = 1;
+    let nheritaSpeedY = 1;
+    const nhera = document.getElementById('nhera');
+    const nherita = document.getElementById('nherita');
+    let followMouseFlag = false;
+
+    function changeColor(selectedColor) {
+        color = selectedColor;
+    }
+
+    function setTool(selectedTool) {
+        tool = selectedTool;
+    }
+
+    function startPosition(e) {
+        painting = true;
+        draw(e);
+    }
+
+    function endPosition() {
+        painting = false;
+        ctx.beginPath();
+    }
+
+    function draw(e) {
+        if (!painting) return;
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = color;
+
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+    }
+
+    function moveNhera() {
+        let rect = nhera.getBoundingClientRect();
+        let canvasRect = canvas.getBoundingClientRect();
+        let newX = rect.x + nheraSpeedX;
+        let newY = rect.y + nheraSpeedY;
+
+        // Verifica limites para a movimentação
+        if (newX < canvasRect.left || newX + rect.width > canvasRect.right) {
+            nheraSpeedX *= -1; // Inverte a direção
+        }
+        if (newY < canvasRect.top || newY + rect.height > canvasRect.bottom) {
+            nheraSpeedY *= -1; // Inverte a direção
         }
 
-        function updateScore() {
-            scoreDisplay.textContent = `Score: ${score}`;
+        nhera.style.left = (rect.x + nheraSpeedX) + 'px';
+        nhera.style.top = (rect.y + nheraSpeedY) + 'px';
+
+        setTimeout(moveNhera, 20); // Chama a função novamente após um pequeno intervalo
+    }
+
+    function moveNherita() {
+        let rect = nherita.getBoundingClientRect();
+        let canvasRect = canvas.getBoundingClientRect();
+        let newX = rect.x + nheritaSpeedX;
+        let newY = rect.y + nheritaSpeedY;
+
+        // Verifica limites para a movimentação
+        if (newX < canvasRect.left || newX + rect.width > canvasRect.right) {
+            nheritaSpeedX *= -1; // Inverte a direção
+        }
+        if (newY < canvasRect.top || newY + rect.height > canvasRect.bottom) {
+            nheritaSpeedY *= -1; // Inverte a direção
         }
 
-        function generateKey() {
-            const possibleKeys = ['A', 'S', 'D', 'W'];
-            const randomKey = possibleKeys[Math.floor(Math.random() * possibleKeys.length)];
-            keysDisplay.textContent = randomKey;
-            keysDisplay.onclick = () => handleKeyClick(randomKey);
+        nherita.style.left = (rect.x + nheritaSpeedX) + 'px';
+        nherita.style.top = (rect.y + nheritaSpeedY) + 'px';
+
+        setTimeout(moveNherita, 20); // Chama a função novamente após um pequeno intervalo
+    }
+
+    function followMouse(e) {
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+
+        // Ativa o modo de seguir o mouse a cada 25 movimentos do mouse
+        if (Math.random() < 0.1) {
+            followMouseFlag = !followMouseFlag;
         }
 
-        function handleKeyClick(key) {
-            score += 10;
-            clickCount++;
-            updateScore();
-
-            // Randomly select a character to "move"
-            const randomCharacter = characters[Math.floor(Math.random() * characters.length)];
-            randomCharacter.style.transform = `translate(${Math.random() * 300 - 150}px, ${Math.random() * 300 - 150}px)`;
-
-            if (clickCount % 5 === 0) {
-                alert(phrases[Math.floor(Math.random() * phrases.length)]);
-            }
-
-            generateKey();
+        if (followMouseFlag) {
+            nhera.style.left = (mouseX - 25) + 'px'; // Centraliza em relação ao mouse
+            nhera.style.top = (mouseY - 25) + 'px';
         }
 
-        function showInstructions() {
-            alert('Click on the key displayed on the screen to make the character dance. Good luck!');
+        // Lógica para nherita apagar o que toca
+        if (tool === 'eraser') {
+            ctx.clearRect(mouseX - 25, mouseY - 25, 50, 50); // Apaga área onde nherita toca
         }
+    }
 
-        function exitGame() {
-            alert('Thank you for playing BTS Dance Game!');
-            music.pause();
-        }
-    </script>
+    moveNhera();
+    moveNherita();
+</script>
+
 </body>
 </html>
